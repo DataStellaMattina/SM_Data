@@ -9,7 +9,6 @@ from awsglue.utils import getResolvedOptions
 import functions as f
 import params as p
 
-gp = p.GLOBLAL_PARAMS()
 s3 = boto3.client("s3")
 
 def main():
@@ -19,7 +18,8 @@ def main():
     # -------- Pre-validación para evitar exit(2) silencioso --------
     required = [
         "DB_SECRET_NAME",
-        "AWS_REGION"
+        "AWS_REGION",
+        "ENV"
     ]
     missing = [k for k in required if f"--{k}" not in sys.argv]
     if missing:
@@ -30,6 +30,10 @@ def main():
     # -------- Args del Job --------
     args = getResolvedOptions(sys.argv, required)
     secret = f.get_secret(args["DB_SECRET_NAME"], args["AWS_REGION"])
+    enviaroment =  args["ENV"]
+    os.environ["ENV"] = args["ENV"] 
+    print("Enviaroment: " + enviaroment)
+    gp = p.GLOBLAL_PARAMS(enviaroment)
 
     s3_bucket = gp.s3_bucket.rstrip("/")
     s3_input_prefix = gp.s3_input_prefix.lstrip("/")
@@ -67,14 +71,13 @@ def main():
 
     # -------- Conexiones a BD --------
     conn_raw = None
-    conn_raw_dev = None
     conn_dm = None
 
     try:
         print("🔌 Abriendo conexiones a PostgreSQL...")
         conn_raw = f.connect_to_postgres(secret, gp.DB_NAME)
-        conn_raw_dev = f.connect_to_postgres(secret, gp.DB_NAME_DEV)
-        conn_dm = f.connect_to_postgres(secret, gp.DB_NAME_DM_PROD)
+        conn_raw_dev = f.connect_to_postgres(secret, gp.DB_NAME)
+        conn_dm = f.connect_to_postgres(secret, gp.DB_NAME_DM)
 
         print("📥 Leyendo parámetros y catálogos desde BD...")
         reading_parameters = f.get_reading_parameters(conn_raw)
@@ -197,6 +200,7 @@ def main():
         "Safely": "009 Harwood",
         "FAIRWAY": "010 CFW",
         "BUCKNER": "011 Buckner",
+        "CHASE - PRIMARY CARE": "010 CFW"
     })
     merchant_info.rename(
         columns={"merch_facility_group_id": "facility_group_id"}, inplace=True
