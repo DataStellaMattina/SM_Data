@@ -16,8 +16,7 @@ from sheet_MFM_Merit_JW import build_collections_merit_JW
 from sheet_harwood import build_collections_harwood
 from sheet_cfw_010 import build_collections_cfw
 from sheet_Buckner_011 import build_collections_buckner
-
-
+from sheet_forest_018 import build_collections_forest
 
 s3 = boto3.client("s3")
 
@@ -86,8 +85,10 @@ def main():
     cfw_facility_collections,cfw_sheet_collections_wide = build_collections_cfw()
     print("Sheet Buckner_011")
     buckner_facility_collections,buckner_sheet_collections_wide = build_collections_buckner()
-    print("Sheet chase_pc")
-    chase_pc_facility_collections,chase_pc_sheet_collections_wide = build_collections_chase_pc()
+    print("Sheet forest 018")
+    forest_facility_collections,forest_sheet_collections_wide = build_collections_forest()
+
+    
 
     print("⚙️ concat collections ...")
     facility_collections = pd.concat([wsc_facility_collections,
@@ -98,7 +99,8 @@ def main():
                                       merit_facility_collections_JW,
                                       hw_facility_collections,
                                       cfw_facility_collections,
-                                      buckner_facility_collections
+                                      buckner_facility_collections,
+                                      forest_facility_collections
                                     ]).reset_index().drop(columns=['index'])
     
     facility_collections['dist_facility_group_id'] = facility_collections['dist_facility_group_id'].astype(int)
@@ -111,7 +113,8 @@ def main():
                                    merit_sheet_collections_wide_JW,
                                    hw_sheet_collections_wide,
                                    cfw_sheet_collections_wide,
-                                   buckner_sheet_collections_wide
+                                   buckner_sheet_collections_wide,
+                                   forest_sheet_collections_wide
                                 ]).reset_index().drop(columns=['index'])
 
     # --------- Carga de resultados a la tabla--------
