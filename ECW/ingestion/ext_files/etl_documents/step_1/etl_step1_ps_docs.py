@@ -91,14 +91,36 @@ def main():
         jlog("info", "read_start", path=s3_file_input, options=gp.READ_OPTIONS)
 
         df = f.read_tsv_utf16(spark, s3_file_input,gp.READ_OPTIONS)
-        df = df.withColumn("run_date", Fnx.current_date())
-        print("📐 Schema del DF:")
-        df.printSchema()  # 👈 aquí estaba el error
+        df = df.withColumn("process_date", Fnx.current_date())
 
-        row_count = df.count()
+        # Casteo
+        
+        df_cast = (
+            df
+            .withColumnRenamed("Assigned To", "assigned_to")
+            .withColumnRenamed("Scanned By", "scanned_by")
+            .withColumnRenamed("Scan Date", "scan_dt")
+            .withColumnRenamed("Document ID", "document_id")
+            .withColumnRenamed("Patient Acct No + Name", "patient_id_name")
+            .withColumnRenamed("Document Type", "document_type")
+            .withColumnRenamed("Custom Name", "custom_name")
+            .withColumnRenamed("Document Facility Name", "document_facility_name")
+            .withColumnRenamed("Appointment Practice Name", "appointment_facility_name")
+            .withColumnRenamed("Reviewed", "reviewed")
+            .withColumnRenamed("Reviewer Name", "reviewer_name")
+            .withColumnRenamed("Reviewed Date", "reviewed_dt")
+            .withColumnRenamed("High Priority", "high_priority")
+            .withColumnRenamed("Publish To EHX", "publish_to_ehx")
+            .withColumnRenamed("Migrated", "migrated")
+        )
+
+        print("📐 Schema del DF:")
+        df_cast.printSchema()
+
+        row_count = df_cast.count()
         print(f"📊 Total de registros: {row_count}")
 
-        num_parts = f.calc_num_partitions(df, target_size_mb=256)
+        num_parts = f.calc_num_partitions(df_cast, target_size_mb=256)
         print(f"🔢 Particiones recomendadas: {num_parts}")  
 
         s3_bucket = gp.s3_bucket.rstrip("/")
@@ -109,11 +131,11 @@ def main():
         print(f"💾 Guardando DataFrame en Parquet en: {output_path}")
 
         (
-            df
-            .repartition(num_parts, "run_date")
+            df_cast
+            .repartition(num_parts, "process_date")
             .write
             .mode("overwrite")
-            .partitionBy("run_date") 
+            .partitionBy("process_date") 
             .format("parquet")
             .save(output_path)
         )
