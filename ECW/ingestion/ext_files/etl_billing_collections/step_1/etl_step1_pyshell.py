@@ -151,7 +151,7 @@ def main():
     dfs["Debit"] = pd.to_numeric(dfs["Debit"], errors="coerce")
     dfs["Credit"] = pd.to_numeric(dfs["Credit"], errors="coerce")
 
-    sheet_facility_group_ids = [4, 5, 11, 12, 13, 14, 15]
+    sheet_facility_group_ids = [4, 5, 11, 12, 13, 14, 15,18]
     mask_all = dfs["amount"].isna() & dfs["sheet_facility_group_id"].isin(
         sheet_facility_group_ids
     )
@@ -200,7 +200,8 @@ def main():
         "Safely": "009 Harwood",
         "FAIRWAY": "010 CFW",
         "BUCKNER": "011 Buckner",
-        "CHASE - PRIMARY CARE": "010 CFW"
+        "CHASE - PRIMARY CARE": "010 CFW",
+        "LOPEZ MD": "012 Forest"
     })
     merchant_info.rename(
         columns={"merch_facility_group_id": "facility_group_id"}, inplace=True
@@ -326,7 +327,7 @@ def main():
     minutes, seconds = divmod(int(elapsed), 60)
 
     mensaje_time = (
-        f"✅ Test Billing Collections Step 1 Finalizado. "
+        f"✅ Billing Collections Step 1 Finalizado. "
         f"Tiempo de ejecución: {minutes} minutos y {seconds} segundos"
     )
     asunto_2 = "OK "
