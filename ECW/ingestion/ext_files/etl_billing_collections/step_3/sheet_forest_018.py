@@ -59,7 +59,7 @@ def build_collections_forest():
     ####### DISTRIBUTED, UNPOSTED, POSTED NODB
     facility_collections = hw_sheet.groupby(by=['sheet_date'])[['amount']].sum().reset_index()
     facility_collections['dist_payment'] = facility_collections['amount']
-    facility_collections['dist_facility_group_id']=15
+    facility_collections['dist_facility_group_id']=18
     facility_collections['allocated_pmt']=0
     
     cols_fc = ['sheet_date', 
